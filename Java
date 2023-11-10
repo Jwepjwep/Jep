@@ -1,1 +1,150 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
 
+class Product {
+    private String name;
+    private double price;
+
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}
+
+class ShoppingCart {
+    private List<Product> cart = new ArrayList<>();
+
+    public void addToCart(Product product) {
+        cart.add(product);
+    }
+
+    public void removeFromCart(String productName) {
+        cart.removeIf(product -> product.getName().equals(productName));
+    }
+
+    public List<Product> viewCart() {
+        return new ArrayList<>(cart);
+    }
+
+    public Optional<Product> searchInCart(String productName) {
+        return cart.stream().filter(product -> product.getName().equals(productName)).findFirst();
+    }
+
+    public void updateCart(String productName, String newProductName, double newPrice) {
+        Optional<Product> productToUpdate = cart.stream()
+                .filter(product -> product.getName().equals(productName))
+                .findFirst();
+
+        if (productToUpdate.isPresent()) {
+            Product product = productToUpdate.get();
+            product.setName(newProductName);
+            product.setPrice(newPrice);
+        } else {
+            System.out.println("Item not found in the cart.");
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        ShoppingCart cart = new ShoppingCart();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("********** Shopping Cart **********");
+            System.out.println("1. Add to Cart");
+            System.out.println("2. Remove from Cart");
+            System.out.println("3. View Cart");
+            System.out.println("4. Search in Cart");
+            System.out.println("5. Update Cart");
+            System.out.println("6. Exit");
+
+            int choice;
+            do {
+                System.out.print("Enter your choice: ");
+                choice = scanner.nextInt();
+                if (choice < 1 || choice > 6) {
+                    System.out.println("Invalid choice. Please try again.");
+                }
+            } while (choice < 1 || choice > 6);
+
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("***** Add to Cart *****");
+                    System.out.print("Enter product name: ");
+                    String productName = scanner.nextLine();
+                    System.out.print("Enter price in pesos: ");
+                    double price = scanner.nextDouble();
+                    scanner.nextLine();
+                    cart.addToCart(new Product(productName, price));
+                    System.out.println("Product added to the cart.");
+                    break;
+                case 2:
+                    System.out.println("***** Remove from Cart *****");
+                    System.out.print("Enter product name to remove: ");
+                    String productToRemove = scanner.nextLine();
+                    cart.removeFromCart(productToRemove);
+                    System.out.println("Product removed from the cart.");
+                    break;
+                case 3:
+                    List<Product> items = cart.viewCart();
+                    if (items.isEmpty()) {
+                        System.out.println("Your cart is empty.");
+                    } else {
+                        System.out.println("***** Items in the Cart *****");
+                        for (Product item : items) {
+                            System.out.println("Product: " + item.getName() + " - Price: " + item.getPrice() + " pesos");
+                        }
+                    }
+                    break;
+                case 4:
+                    System.out.println("***** Search in Cart *****");
+                    System.out.print("Enter product name to search: ");
+                    String productToSearch = scanner.nextLine();
+                    Optional<Product> foundItem = cart.searchInCart(productToSearch);
+                    if (foundItem.isPresent()) {
+                        System.out.println("Found in Cart: Product: " + foundItem.get().getName() + " - Price: " + foundItem.get().getPrice() + " pesos");
+                    } else {
+                        System.out.println("Item not found in the cart.");
+                    }
+                    break;
+                case 5:
+                    System.out.println("***** Update Cart *****");
+                    System.out.print("Enter product name to update: ");
+                    String productToUpdate = scanner.nextLine();
+                    System.out.print("Enter new product name: ");
+                    String newProductName = scanner.nextLine();
+                    System.out.print("Enter new price in pesos: ");
+                    double newPrice = scanner.nextDouble();
+                    scanner.nextLine();
+                    cart.updateCart(productToUpdate, newProductName, newPrice);
+                    System.out.println("Cart updated.");
+                    break;
+                case 6:
+                    System.out.println("Thank you for shopping! Goodbye.");
+                    scanner.close();
+                    System.exit(0);
+            }
+        }
+    }
+}
